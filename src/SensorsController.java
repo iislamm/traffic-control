@@ -8,10 +8,15 @@ public class SensorsController {
     private static SensorsController currentSensorController;
 
     private SensorsController() {
+        this.waitingCarsCount = 0;
+        this.departedCarsCount = 0;
+        this.waitingPedestrians = 0;
+        this.leftPedestrians = 0;
+        this.isHeavyTraffic = false;
     }
 
     public static SensorsController getCurrentSensorController() {
-        if (currentSensorController != null) {
+        if (currentSensorController == null) {
             currentSensorController = new SensorsController();
         }
         return currentSensorController;

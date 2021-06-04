@@ -7,6 +7,11 @@ public class StreetController {
         this.trafficLight = trafficLight;
     }
 
+    public StreetController(String trafficLight) {
+        this.trafficLight = trafficLight;
+
+    }
+
     public void changeTrafficLight() {
 
     }
@@ -16,7 +21,7 @@ public class StreetController {
     }
 
     public String getTrafficLight() {
-        return trafficLight;
+        return this.trafficLight;
     }
 
     public void setTrafficLight(String trafficLight) {

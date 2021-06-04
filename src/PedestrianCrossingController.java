@@ -5,6 +5,7 @@ public class PedestrianCrossingController {
 
     public PedestrianCrossingController(String pedestrianTrafficLight) {
         this.pedestrianTrafficLight = pedestrianTrafficLight;
+
     }
 
     public PedestrianCrossingController(boolean buttonPressed, String pedestrianTrafficLight, boolean resolverRequested) {
@@ -39,7 +40,7 @@ public class PedestrianCrossingController {
     }
 
     public String getPedestrianTrafficLight() {
-        return pedestrianTrafficLight;
+        return this.pedestrianTrafficLight;
     }
 
     public void setPedestrianTrafficLight(String pedestrianTrafficLight) {

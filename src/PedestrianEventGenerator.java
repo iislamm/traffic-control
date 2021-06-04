@@ -4,6 +4,10 @@ import com.espertech.esper.client.EPServiceProviderManager;
 import java.util.TimerTask;
 
 public class PedestrianEventGenerator extends Thread {
+    public String getCurrentColor() {
+        return currentColor;
+    }
+
     private String currentColor;
     private final int redSeconds;
     private final int greenSeconds;
@@ -18,43 +22,44 @@ public class PedestrianEventGenerator extends Thread {
         engine = EPServiceProviderManager.getDefaultProvider();
     }
 
-    private void changeTrafficLight() {
+     void changePedestrianLight() {
         if (this.currentColor.equals("red")) {
             this.currentColor = "green";
         } else {
             this.currentColor = "red";
         }
-        engine.getEPRuntime().sendEvent(new PedestrianCrossingController(this.currentColor));
-        try {
-            if (this.currentColor.equals("red")) {
-                sleep(redSeconds * 1000L);
-            } else {
-                sleep(greenSeconds * 1000L);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+         try {
+             if (this.currentColor.equals("red")) {
+                 addPedestrians();
+                 sleep(redSeconds * 1000L);
+                 addPedestrians();
+             } else { // Green
+                 sensorsController.setWaitingPedestrians(0);
+                 sleep(greenSeconds * 1000L);
+             }
+         } catch (InterruptedException e) {
+             e.printStackTrace();
+         }
+         System.out.println("pedestrian " + currentColor);
+         System.out.println("pedestrians count " + sensorsController.getWaitingPedestrians());
+         engine.getEPRuntime().sendEvent(new PedestrianCrossingController(this.currentColor));
+
     }
 
-    public void addPedestrians() {
-        if (currentColor.equals("red"))
+    public void addPedestrians (){
+        sensorsController.setWaitingPedestrians(sensorsController.getWaitingPedestrians() + 1);
+//        System.out.println(sensorsController.getWaitingPedestrians());
+
     }
 
     @Override
     public void run() {
         super.run();
-
+        changePedestrianLight();
         while (true) {
-//            changeTrafficLight();
-            int timer;
-            if(currentColor.equals("red"))
-                timer = redSeconds * 1000;
-            else
-                timer = greenSeconds * 1000;
 
-            for(int i = 0; i < timer; i++){
-                System.out.println("add pedestrian");
-            }
+
         }
     }
 }

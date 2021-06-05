@@ -5,11 +5,11 @@ import Events.TrafficLightEvent;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 
-public class TrafficLightEventGenerator extends Thread {
+public class SuspensionEventGenerator extends Thread {
     private final EPServiceProvider engine;
     private final TrafficLightController trafficLightController;
 
-    public TrafficLightEventGenerator() {
+    public SuspensionEventGenerator() {
         engine = EPServiceProviderManager.getDefaultProvider();
         trafficLightController = TrafficLightController.getCurrentController();
     }
@@ -18,18 +18,21 @@ public class TrafficLightEventGenerator extends Thread {
     public void run() {
         super.run();
         String currentColor;
+        boolean isSuspended;
+
         while (true) {
             currentColor = trafficLightController.getStreetTrafficLight();
+
             try {
-                if (trafficLightController.isSuspended()) {
-                    sleep(1000L);
-                } else {
-                    if (currentColor.equals("red")) { // Red
-                        sleep(trafficLightController.getRedSeconds() * 1000L);
+                isSuspended = trafficLightController.isSuspended();
+
+
+                if (isSuspended) {
+                    System.out.println("IT IS SUSPENDED");
+                    sleep(500L);
+                    if (currentColor.equals("red")) {
                         engine.getEPRuntime().sendEvent(new TrafficLightEvent("green", "red", false));
-                    } else { // Green
-                        System.out.println("Sleeping for: " + trafficLightController.getGreenSeconds());
-                        sleep(trafficLightController.getGreenSeconds() * 1000L);
+                    } else {
                         engine.getEPRuntime().sendEvent(new TrafficLightEvent("red", "green", false));
                     }
                 }

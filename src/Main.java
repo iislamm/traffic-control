@@ -1,21 +1,20 @@
 import Controllers.ConflictResolver;
 import Controllers.SensorsController;
 import Controllers.TrafficLightController;
-import EventGenerators.CarArrivalEventGenerator;
-import EventGenerators.PedestrianArrivalEventGenerator;
-import EventGenerators.PedestrianRequestEventGenerator;
-import EventGenerators.TrafficLightEventGenerator;
-import Events.CarArrivalEvent;
-import Events.PedestrianArrivalEvent;
-import Events.PedestrianRequestEvent;
-import Events.TrafficLightEvent;
+import EventGenerators.*;
+import Events.*;
+import Views.MainFrame;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 
+import javax.swing.*;
+
 
 public class Main {
     public static void main(String[] args) {
+        JFrame frame = MainFrame.getCurrentMainFrame();
+
         EPServiceProvider engine = EPServiceProviderManager.getDefaultProvider();
         TrafficLightController trafficLightController = TrafficLightController.getCurrentController();
         SensorsController sensorsController = SensorsController.getCurrentController();
@@ -24,6 +23,7 @@ public class Main {
         engine.getEPAdministrator().getConfiguration().addEventType(PedestrianArrivalEvent.class);
         engine.getEPAdministrator().getConfiguration().addEventType(CarArrivalEvent.class);
         engine.getEPAdministrator().getConfiguration().addEventType(PedestrianRequestEvent.class);
+        engine.getEPAdministrator().getConfiguration().addEventType(SuspensionEvent.class);
 
         EPStatement streetLightStatement = engine
                 .getEPAdministrator()
@@ -40,6 +40,10 @@ public class Main {
         EPStatement pedestrianRequestEvent = engine
                 .getEPAdministrator()
                 .createEPL("select request from PedestrianRequestEvent");
+
+        EPStatement suspensionEventStatement = engine
+                .getEPAdministrator()
+                .createEPL("select suspended from SuspensionEvent");
 
 
         streetLightStatement.setSubscriber(new Object() {
@@ -62,7 +66,16 @@ public class Main {
 
         pedestrianRequestEvent.setSubscriber(new Object() {
             public void update(boolean request) {
+                System.out.println("**Request**");
+                sensorsController.increasePedestrians(1);
                 trafficLightController.setCurrentPedestrianRequestWait(0);
+            }
+        });
+
+        suspensionEventStatement.setSubscriber(new Object() {
+            public void update(boolean suspended) {
+                System.out.println("Event Received: " + suspended);
+                trafficLightController.setSuspended(suspended);
             }
         });
 
@@ -70,12 +83,14 @@ public class Main {
         PedestrianArrivalEventGenerator pedestrianArrivalEventGenerator = new PedestrianArrivalEventGenerator();
         CarArrivalEventGenerator carArrivalEventGenerator = new CarArrivalEventGenerator();
         PedestrianRequestEventGenerator pedestrianRequestEventGenerator = new PedestrianRequestEventGenerator();
+        SuspensionEventGenerator suspensionEventGenerator = new SuspensionEventGenerator();
         ConflictResolver conflictResolver = new ConflictResolver();
 
         trafficLightEventGenerator.start();
-        pedestrianArrivalEventGenerator.start();
+//        pedestrianArrivalEventGenerator.start();
         carArrivalEventGenerator.start();
-        pedestrianRequestEventGenerator.start();
+//        pedestrianRequestEventGenerator.start();
         conflictResolver.start();
+        suspensionEventGenerator.start();
     }
 }

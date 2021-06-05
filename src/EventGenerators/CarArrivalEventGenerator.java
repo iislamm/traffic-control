@@ -19,7 +19,7 @@ public class CarArrivalEventGenerator extends Thread {
             arrivedCarsCount = (int) (Math.random() * 5);
             engine.getEPRuntime().sendEvent(new CarArrivalEvent(arrivedCarsCount));
             try {
-                sleep(1000);
+                sleep(800);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

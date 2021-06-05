@@ -10,7 +10,7 @@ public class ConflictResolver extends Thread {
     private final EPServiceProvider engine;
 
     public ConflictResolver() {
-        this.maxPedestrianWait = 2;
+        this.maxPedestrianWait = 30;
         trafficLightController = TrafficLightController.getCurrentController();
         engine = EPServiceProviderManager.getDefaultProvider();
     }
